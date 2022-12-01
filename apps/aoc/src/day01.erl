@@ -10,16 +10,12 @@ solve() ->
   {Part1, Part2}.
 
 summed_calories() ->
-  {LastGroup, Acc} =
-    aoc:read_file_fold("day01.txt",
-                       <<"\n">>,
-                       fun (<<>>, {Group, Acc}) ->
-                             {0, sort([Group | Acc])};
-                           (B, {Group, Acc}) when is_binary(B) ->
-                             {binary_to_integer(B) + Group, Acc}
-                       end,
-                       {0, []}),
-  sort([LastGroup | Acc]).
+  aoc:read_file_fold("day01.txt",
+                     <<"\n\n">>,
+                     fun(B, Acc) when is_binary(B) ->
+                        sort([lists:sum([binary_to_integer(X) || X <- binary:split(B, <<"\n">>, [global]), X =/= <<>> ]) | Acc])
+                     end,
+                     []).
 
 sort([H1, H2, H3 |_]) when H1 > H2 ->
   [H1, H2, H3];
