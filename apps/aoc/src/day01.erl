@@ -3,26 +3,20 @@
 -export([ solve/0 ]).
 
 solve() ->
-  Input =
-    aoc:read_file("day01.txt",
-                  <<"\n">>,
-                  fun (<<>>) ->
-                        new_group;
-                      (B) ->
-                        binary_to_integer(B)
-                  end),
-  SummedCalories = sum_calories(Input),
-  Part1 = lists:max(SummedCalories),
-  Part2 = lists:sum(lists:sublist(lists:reverse(lists:sort(sum_calories(Input))), 3)),
+  SummedCalories = summed_calories(),
+  TopThree = lists:sublist(lists:reverse(lists:sort(SummedCalories)), 3),
+  Part1 = hd(TopThree),
+  Part2 = lists:sum(TopThree),
   {Part1, Part2}.
 
-sum_calories(Input) ->
-  sum_calories(Input, {0, []}).
-
-sum_calories([], {Group, Acc}) ->
-  [Group | Acc];
-sum_calories([new_group | T], {Group, Acc}) ->
-  sum_calories(T, {0, [Group | Acc]});
-sum_calories([H | T], {Group, Acc}) ->
-  sum_calories(T, {H + Group, Acc}).
-
+summed_calories() ->
+  {LastGroup, Acc} =
+    aoc:read_file_fold("day01.txt",
+                       <<"\n">>,
+                       fun (<<>>, {Group, Acc}) ->
+                             {0, [Group | Acc]};
+                           (B, {Group, Acc}) ->
+                             {binary_to_integer(B) + Group, Acc}
+                       end,
+                       {0, []}),
+  [LastGroup | Acc].
