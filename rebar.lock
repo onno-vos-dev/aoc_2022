@@ -1,4 +1,8 @@
 [{<<"color">>,
   {git,"https://github.com/julianduque/erlang-color.git",
        {ref,"2e538a3360cfdf47906929a04b9471a1f5320afe"}},
+  0},
+ {<<"parse_trans">>,
+  {git,"https://github.com/uwiger/parse_trans.git",
+       {ref,"cdb01ba260ba9a00b2aafa17affead0f6fac081c"}},
   0}].
