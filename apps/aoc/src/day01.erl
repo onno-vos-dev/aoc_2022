@@ -19,15 +19,25 @@ summed_calories() ->
   aoc:read_file_fold("day01.txt",
                      <<"\n\n">>,
                      fun(B, Acc) when is_binary(B) ->
-                        sort([lists:sum([binary_to_integer(X) || X <- binary:split(B, <<"\n">>, [global]), X =/= <<>> ]) | Acc])
+                        sort([lists:sum([binary_to_integer(X)
+                                         || X <- binary:split(B, <<"\n">>, [global]), X =/= <<>>])
+                              | Acc])
                      end,
                      []).
 
 summed_calories_parallel() ->
   Input = aoc:read_file("aoc_2022_day01_large_input.txt", <<"\n\n">>),
-  Fun = fun(Bins) -> [ lists:sum([binary_to_integer(X) || X <- binary:split(B, <<"\n">>, [global]), X =/= <<>> ]) || B <- Bins ] end,
+  Fun =
+    fun(Bins) ->
+       [lists:sum([binary_to_integer(X) || X <- binary:split(B, <<"\n">>, [global]), X =/= <<>>])
+        || B <- Bins]
+    end,
   Sums = aoc_helpers:pmap(Fun, aoc_helpers:split_to_chunks(Input, 1000)),
-  lists:sublist(lists:reverse(lists:sort(lists:flatten(Sums))), 3).
+  lists:sublist(
+    lists:reverse(
+      lists:sort(
+        lists:flatten(Sums))),
+    3).
 
 sort([H1, H2, H3 |_]) when H1 > H2 ->
   [H1, H2, H3];
