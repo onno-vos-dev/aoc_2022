@@ -1,10 +1,16 @@
 -module(day01).
 
--export([ solve/0 ]).
--export([generate_large_puzzle_input/1]).
+-export([ solve/0, solve_large_parallel/0 ]).
+-export([ generate_large_puzzle_input/1 ]).
 
 solve() ->
   TopThree = summed_calories(),
+  Part1 = hd(TopThree),
+  Part2 = lists:sum(TopThree),
+  {Part1, Part2}.
+
+solve_large_parallel() ->
+  TopThree = summed_calories_parallel(),
   Part1 = hd(TopThree),
   Part2 = lists:sum(TopThree),
   {Part1, Part2}.
@@ -16,6 +22,12 @@ summed_calories() ->
                         sort([lists:sum([binary_to_integer(X) || X <- binary:split(B, <<"\n">>, [global]), X =/= <<>> ]) | Acc])
                      end,
                      []).
+
+summed_calories_parallel() ->
+  Input = aoc:read_file("aoc_2022_day01_large_input.txt", <<"\n\n">>),
+  Fun = fun(Bins) -> [ lists:sum([binary_to_integer(X) || X <- binary:split(B, <<"\n">>, [global]), X =/= <<>> ]) || B <- Bins ] end,
+  Sums = aoc_helpers:pmap(Fun, aoc_helpers:split_to_chunks(Input, 1000)),
+  lists:sublist(lists:reverse(lists:sort(lists:flatten(Sums))), 3).
 
 sort([H1, H2, H3 |_]) when H1 > H2 ->
   [H1, H2, H3];

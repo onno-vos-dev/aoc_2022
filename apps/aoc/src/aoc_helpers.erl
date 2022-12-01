@@ -10,6 +10,7 @@
         , binary_to_decimal/1
         , split_to_chunks/2
         , sort_ints/1
+        , pmap/2
         ]).
 
 -on_load(init/0).
@@ -26,6 +27,22 @@
                             ]}).
 
 %% API ========================================================================
+%% Credit where credit is due: https://gist.github.com/nicklasos/c177478b972e74872b3b
+pmap(F, L) ->
+  S = self(),
+  Pids = lists:map(fun(I) -> spawn(fun() -> pmap_f(S, F, I) end) end, L),
+  pmap_gather(Pids).
+
+pmap_gather([H|T]) ->
+  receive
+    {H, Ret} -> [Ret|pmap_gather(T)]
+  end;
+pmap_gather([]) ->
+  [].
+
+pmap_f(Parent, F, I) ->
+  Parent ! {self(), (catch F(I))}.
+
 median(Unsorted) ->
   Sorted = lists:sort(Unsorted),
   Length = length(Sorted),
