@@ -27,3 +27,4 @@ doc
 apps/aoc/priv/libaoc.so
 rust_nif_src/target/
 rust/day*
+apps/aoc/priv/inputs/aoc_2022_day01_large_input.txt
