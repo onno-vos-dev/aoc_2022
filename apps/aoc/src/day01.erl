@@ -19,7 +19,7 @@ summed_calories() ->
                              {binary_to_integer(B) + Group, Acc}
                        end,
                        {0, [0, 0, 0]}),
-  [LastGroup | Acc].
+  lists:sublist(lists:reverse(lists:sort([LastGroup | Acc])), 3).
 
 generate_large_puzzle_input(NumberOfElves) ->
   {ok, FD} = file:open("/tmp/aoc_2022_day01_large_input.txt", [write]),
