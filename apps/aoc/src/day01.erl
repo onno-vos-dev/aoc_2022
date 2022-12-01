@@ -14,12 +14,31 @@ summed_calories() ->
     aoc:read_file_fold("day01.txt",
                        <<"\n">>,
                        fun (<<>>, {Group, Acc}) ->
-                             {0, lists:sublist(lists:reverse(lists:sort([Group | Acc])), 3)};
-                           (B, {Group, Acc}) ->
+                             {0, sort([Group | Acc])};
+                           (B, {Group, Acc}) when is_binary(B) ->
                              {binary_to_integer(B) + Group, Acc}
                        end,
-                       {0, [0, 0, 0]}),
-  lists:sublist(lists:reverse(lists:sort([LastGroup | Acc])), 3).
+                       {0, []}),
+  sort([LastGroup | Acc]).
+
+sort([H1, H2, H3 |_]) when H1 > H2 ->
+  [H1, H2, H3];
+sort([H1, H2, H3, H4]) when H1 < H2 andalso H1 < H3 andalso H1 < H4 ->
+  [H2, H3, H4];
+sort([H1, H2, H3, H4]) when H1 < H2 andalso H1 < H3 andalso H1 > H4 ->
+  [H2, H3, H1];
+sort([H1, H2, H3 | _]) when H1 < H2 andalso H1 > H3 ->
+  [H2, H1, H3];
+sort([H1, H2, H3]) when H1 > H2 andalso H2 > H3 ->
+  [H1, H2, H3];
+sort([H1, H2, H3]) when H1 < H2 andalso H1 < H3 ->
+  [H2, H3, H1];
+sort([H]) ->
+  [H];
+sort([H1, H2]) when H1 > H2 ->
+  [H1, H2];
+sort([H1, H2]) when H1 < H2 ->
+  [H2, H1].
 
 generate_large_puzzle_input(NumberOfElves) ->
   {ok, FD} = file:open("/tmp/aoc_2022_day01_large_input.txt", [write]),

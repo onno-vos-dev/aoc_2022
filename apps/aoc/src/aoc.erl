@@ -26,7 +26,7 @@ read_file(File, Split, CastFun) ->
 -spec read_file_fold(string(), binary(), fun((any(), any()) -> any()), any()) -> any().
 read_file_fold(File, Split, FoldFun, Acc) ->
   {ok, Bin} = read(File),
-  lists:foldl(FoldFun, Acc, binary:split(Bin, Split, [trim, global])).
+  lists:foldl(FoldFun, Acc, binary:split(Bin, Split, [global])).
 
 -spec read(string()) -> {error, atom()} | {ok, binary()}.
 read(File) ->
