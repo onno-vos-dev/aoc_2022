@@ -1,6 +1,7 @@
 -module(aoc).
 
--export([ read_file/2
+-export([ read/1
+        , read_file/2
         , read_file/3
         , read_file_fold/4
         ]).
@@ -16,7 +17,7 @@
 -spec read_file(string(), binary()) -> [any()].
 read_file(File, Split) ->
   {ok, Bin} = read(File),
-  [ S || S <- binary:split(Bin, Split, [trim, global]) ].
+  binary:split(Bin, Split, [trim, global]).
 
 -spec read_file(string(), binary(), fun((any()) -> any())) -> [any()].
 read_file(File, Split, CastFun) ->
@@ -26,7 +27,7 @@ read_file(File, Split, CastFun) ->
 -spec read_file_fold(string(), binary(), fun((any(), any()) -> any()), any()) -> any().
 read_file_fold(File, Split, FoldFun, Acc) ->
   {ok, Bin} = read(File),
-  lists:foldl(FoldFun, Acc, binary:split(Bin, Split, [global])).
+  lists:foldl(FoldFun, Acc, binary:split(Bin, Split, [trim, global])).
 
 -spec read(string()) -> {error, atom()} | {ok, binary()}.
 read(File) ->
