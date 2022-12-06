@@ -30,3 +30,4 @@ rust/day*
 apps/aoc/priv/inputs/aoc_2022_day01_large_input.txt
 apps/aoc/priv/inputs/aoc22*
 apps/aoc/priv/inputs/day02_large.txt
+stacks.out
