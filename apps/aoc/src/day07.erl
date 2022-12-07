@@ -21,8 +21,8 @@ push_contents([], Acc) ->
   {[], Acc};
 push_contents([<<"$ ", _/binary>> | _] = T, Acc) ->
   {T, Acc};
-push_contents([<<"dir ", Dir/binary>> | T], Acc) ->
-  push_contents(T, new_dir(Dir, Acc));
+push_contents([<<"dir ", _/binary>> | T], Acc) ->
+  push_contents(T, Acc);
 push_contents([File | T], Acc) ->
   [Size, Name] = binary:split(File, <<" ">>),
   push_contents(T, add_file_size(Name, Size, Acc)).
@@ -30,10 +30,6 @@ push_contents([File | T], Acc) ->
 -compile({inline, [new_tree/1]}).
 new_tree(Path) ->
   {Path, #{Path => 0}}.
-
--compile({inline, [new_dir/2]}).
-new_dir(Dir, {Path, Contents}) ->
-  {Path, maps:put(filename:join(Path, Dir), 0, Contents)}.
 
 -compile({inline, [add_file_size/3]}).
 add_file_size(_Name, Size, {Path, Contents}) ->
@@ -55,7 +51,7 @@ sum_final_dirs(Acc) ->
   sum_final_dirs(pop_dir(Acc)).
 
 part1(Tree) ->
-  Filtered = maps:filter(fun(_, V) -> V =< 100_000 andalso V =/= 0 end, Tree),
+  Filtered = maps:filter(fun(_, V) -> V =< 100_000 end, Tree),
   lists:sum(maps:values(Filtered)).
 
 part2(Sums) ->
@@ -63,5 +59,5 @@ part2(Sums) ->
   Unused = 70_000_000 - Total,
   Required = 3_000_0000,
   ToDelete = Required - Unused,
-  Candidates = maps:filter(fun(_, V) -> V > ToDelete andalso V =/= 0 end, Sums),
+  Candidates = maps:filter(fun(_, V) -> V > ToDelete end, Sums),
   lists:min(maps:values(Candidates)).

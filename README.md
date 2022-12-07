@@ -21,5 +21,5 @@ day03:solve().          1       1100     909 us
 day04:solve().          1        870    1149 us
 day05:solve().          1       1389     720 us
 day06:solve().          1      12145   82338 ns
-day07:solve().          1       1037     964 us
+day07:solve().          1       1404     712 us
 ```
