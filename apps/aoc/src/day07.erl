@@ -2,12 +2,6 @@
 
 -export([solve/0]).
 
--define(REGEX, {re_pattern,0,0,0, <<69,82,67,80,105,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,
-                                    255,255,255,255,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,0,0,0,
-                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,131,0,37,
-                                    110,0,0,0,0,0,0,255,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                                    0,0,0,0,0,0,0,0,107,120,0,37,0>>}).
-
 solve() ->
   Input = aoc:read_file("day07.txt", <<"\n">>),
   Tree = build_dir_structure(tl(Input), new_tree(<<"/">>)),
@@ -30,8 +24,7 @@ push_contents([<<"$ ", _/binary>> | _] = T, Acc) ->
 push_contents([<<"dir ", Dir/binary>> | T], Acc) ->
   push_contents(T, new_dir(Dir, Acc));
 push_contents([File | T], Acc) ->
-  {match, [{_StartSize, EndSize}]} = re:run(File, ?REGEX),
-  {Size, Name} = split_binary(File, EndSize),
+  [Size, Name] = binary:split(File, <<" ">>),
   push_contents(T, add_file_size(Name, Size, Acc)).
 
 -compile({inline, [new_tree/1]}).
