@@ -23,8 +23,8 @@ parse_line(<<>>, {_, {XMap, YMap, Grid}}) ->
   {XMap, YMap, Grid};
 parse_line(<<TreeB:8, OtherTrees/binary>>, {{X, Y}, {XMap, YMap, Grid}}) ->
   Tree = TreeB - $0,
-  NewXMap = maps:update_with(X, fun(V) -> [{X, Tree} | V] end, [{X, Tree}], XMap),
-  NewYMap = maps:update_with(Y, fun(V) -> [{Y, Tree} | V] end, [{Y, Tree}], YMap),
+  NewXMap = maps:update_with(X, fun(V) -> [Tree | V] end, [Tree], XMap),
+  NewYMap = maps:update_with(Y, fun(V) -> [Tree | V] end, [Tree], YMap),
   NewGrid = Grid#{{X, Y} => Tree},
   parse_line(OtherTrees, {{X + 1, Y}, {NewXMap, NewYMap, NewGrid}}).
 
@@ -34,22 +34,22 @@ part1(XMap, YMap, Grid) ->
 is_visible(_, _, {{X,Y}, _}) when X =:= 1 orelse Y =:= 1 orelse X =:= 99 orelse Y =:= 99 ->
   true;
 is_visible(XMap, YMap, {{X, Y}, Tree}) ->
-  {Up, Down} = split_directions(X, Y, maps:get(X, XMap)),
-  {Left, Right} = split_directions(Y, X, maps:get(Y, YMap)),
+  {Up, Down} = split_directions(Y, maps:get(X, XMap)),
+  {Left, Right} = split_directions(X, maps:get(Y, YMap)),
   do_is_visible([Left, Right, Up, Down], Tree).
 
-split_directions(XorY, Skip, List) ->
-  split_directions(XorY, Skip, List, {99, {[], []}}).
+split_directions(Skip, List) ->
+  split_directions(Skip, List, {99, {[], []}}).
 
-split_directions(_, _, [], {_, {L1, L2}}) -> {L1, L2};
-split_directions(XorY, Skip, [{_, Tree} | T], {N, {L1, L2}}) ->
+split_directions(_, [], {_, {L1, L2}}) -> {L1, L2};
+split_directions(Skip, [Tree | T], {N, {L1, L2}}) ->
   case {N > Skip, N < Skip} of
     {true, false} ->
-      split_directions(XorY, Skip, T, {N - 1, {L1, [Tree | L2]}});
+      split_directions(Skip, T, {N - 1, {L1, [Tree | L2]}});
     {false, true} ->
-      split_directions(XorY, Skip, T, {N - 1, {[Tree | L1], L2}});
+      split_directions(Skip, T, {N - 1, {[Tree | L1], L2}});
     _ ->
-      split_directions(XorY, Skip, T, {N - 1, {L1, L2}})
+      split_directions(Skip, T, {N - 1, {L1, L2}})
   end.
 
 do_is_visible([], _Tree) ->
@@ -70,8 +70,8 @@ part2(XMap, YMap, Grid) ->
   lists:max(Scores).
 
 scenic_score(XMap, YMap, {{X,Y}, Tree}) ->
-  {Up, Down} = split_directions(X, Y, maps:get(X, XMap)),
-  {Left, Right} = split_directions(Y, X, maps:get(Y, YMap)),
+  {Up, Down} = split_directions(Y, maps:get(X, XMap)),
+  {Left, Right} = split_directions(X, maps:get(Y, YMap)),
   do_scenic_score([lists:reverse(Left), Right, lists:reverse(Up), Down], Tree, []).
 
 do_scenic_score([], _Tree, [A, B, C, D]) ->
