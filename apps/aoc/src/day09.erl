@@ -21,7 +21,6 @@ direction($U) -> {0, 1};
 direction($L) -> {-1, 0};
 direction($R) -> {1, 0}.
 
-
 part1(Instructions) ->
   maps:size(solve(Instructions, {knots(2), #{}})).
 
@@ -50,14 +49,17 @@ move_tails(Head, [Tail | OtherTails], NewTails) ->
   NewTail = move(Tail, move_tail_by(Head, Tail)),
   move_tails(NewTail, OtherTails, [NewTail | NewTails]).
 
+-compile({inline, [move/2]}).
 move({X, Y}, {Xd, Yd}) ->
   {X + Xd, Y + Yd}.
 
+-compile({inline, [move_tail_by/2]}).
 move_tail_by({HX, HY}, {TX, TY}) when (abs(HX - TX) =< 1) andalso (abs(HY - TY) =< 1) ->
   {0, 0};
 move_tail_by({HX, HY}, {TX, TY}) ->
   {sign(HX - TX), sign(HY - TY)}.
 
+-compile({inline, [sign/1]}).
 sign(Int) when Int < 0   -> -1;
 sign(Int) when Int =:= 0 -> 0;
 sign(Int) when Int > 0   -> 1.
