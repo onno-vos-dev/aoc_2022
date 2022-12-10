@@ -5,9 +5,8 @@
 
 solve() ->
   Input = aoc:read_file("day08.txt", <<"\n">>),
-  {XMap, YMap, Grid} = grid(Input, {1, {#{}, #{}, #{}}}),
-  %% io:format("XMap: ~p~n", [XMap]),
-  %% io:format("YMap: ~p~n", [YMap]),
+  {TGrid, {XMap, YMap, Grid}} = timer:tc(fun() -> grid(Input, {1, {#{}, #{}, #{}}}) end),
+  io:format("TGrid: ~p (~p ms)~n", [TGrid, TGrid div 1000]),
   {Tpart1, Part1} = timer:tc(fun() -> part1(XMap, YMap, Grid) end),
   {Tpart2, Part2} = timer:tc(fun() -> part2(XMap, YMap, Grid) end),
   io:format("Tpart1: ~p (~p ms)~n", [Tpart1, Tpart1 div 1000]),
@@ -38,26 +37,12 @@ is_visible(XMap, YMap, {{X, Y}, Tree}) ->
   {Left, Right} = split_directions(X, maps:get(Y, YMap)),
   do_is_visible([Left, Right, Up, Down], Tree).
 
-split_directions(Skip, List) ->
-  split_directions(Skip, List, {99, {[], []}}).
-
-split_directions(_, [], {_, {L1, L2}}) -> {L1, L2};
-split_directions(Skip, [Tree | T], {N, {L1, L2}}) ->
-  case {N > Skip, N < Skip} of
-    {true, false} ->
-      split_directions(Skip, T, {N - 1, {L1, [Tree | L2]}});
-    {false, true} ->
-      split_directions(Skip, T, {N - 1, {[Tree | L1], L2}});
-    _ ->
-      split_directions(Skip, T, {N - 1, {L1, L2}})
-  end.
-
 do_is_visible([], _Tree) ->
   false;
 do_is_visible([[] | _], _Tree) ->
   true;
 do_is_visible([Trees | T], Tree) ->
-  AllSmaller = lists:max(Trees) < Tree, %% lists:all(fun(T__) -> T__ < Tree end, Trees),
+  AllSmaller = lists:all(fun(T__) -> T__ < Tree end, Trees),
   case AllSmaller of
     true ->
       true;
@@ -95,4 +80,18 @@ foldwhile([H | T], F, Acc) ->
       foldwhile(T, F, Acc + 1);
     false ->
       Acc + 1
+  end.
+
+split_directions(Skip, List) ->
+  split_directions(Skip, List, {99, {[], []}}).
+
+split_directions(_, [], {_, {L1, L2}}) -> {L1, L2};
+split_directions(Skip, [Tree | T], {N, {L1, L2}}) ->
+  case {N > Skip, N < Skip} of
+    {true, false} ->
+      split_directions(Skip, T, {N - 1, {L1, [Tree | L2]}});
+    {false, true} ->
+      split_directions(Skip, T, {N - 1, {[Tree | L1], L2}});
+    _ ->
+      split_directions(Skip, T, {N - 1, {L1, L2}})
   end.
