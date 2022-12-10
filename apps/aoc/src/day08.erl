@@ -30,7 +30,7 @@ parse_line(<<TreeB:8, OtherTrees/binary>>, {{X, Y}, {XMap, YMap, Grid}}) ->
 part1(XMap, YMap, Grid) ->
   maps:size(maps:filter(fun(K, V) -> is_visible(XMap, YMap, {K, V}) end, Grid)).
 
-is_visible(_, _, {{X,Y}, _}) when X =:= 1 orelse Y =:= 1 orelse X =:= 99 orelse Y =:= 99 ->
+is_visible(_, _, {{X, Y}, _}) when X =:= 1 orelse Y =:= 1 orelse X =:= 99 orelse Y =:= 99 ->
   true;
 is_visible(XMap, YMap, {{X, Y}, Tree}) ->
   {Up, Down} = split_directions(Y, maps:get(X, XMap)),
@@ -54,7 +54,7 @@ part2(XMap, YMap, Grid) ->
   Scores = maps:fold(fun(K, V, A) -> [scenic_score(XMap, YMap, {K, V})|A] end, [], Grid),
   lists:max(Scores).
 
-scenic_score(XMap, YMap, {{X,Y}, Tree}) ->
+scenic_score(XMap, YMap, {{X, Y}, Tree}) ->
   {Up, Down} = split_directions(Y, maps:get(X, XMap)),
   {Left, Right} = split_directions(X, maps:get(Y, YMap)),
   do_scenic_score([lists:reverse(Left), Right, lists:reverse(Up), Down], Tree, []).
