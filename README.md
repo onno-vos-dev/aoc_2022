@@ -22,7 +22,8 @@ day04:solve().          1        870    1149 us
 day05:solve().          1       1389     720 us
 day06:solve().          1      12145   82338 ns
 day07:solve().          1       1404     712 us
-day08:solve().          1      Work in Progress
+day08:solve().          1          _        WIP
 day09:solve().          1        105    9524 us
-
+day10:solve().          1          _       TODO
+day11:solve().          1          7     143 ms
 ```
