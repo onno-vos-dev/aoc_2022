@@ -34,20 +34,7 @@ parse([<<"  Starting items: ", ItemsB/binary>> | T], {Monkey, State}) ->
   parse(T, {Monkey, State#state{items = Items#{Num => MonkeyItems}}});
 parse([<<"  Operation: new = old ", OpValue/binary>> | T], {Monkey, State}) ->
   [OperandB, ValueB] = binary:split(OpValue, <<" ">>, [trim]),
-  Fun =
-    case {OperandB, ValueB} of
-      {<<"*">>, <<"old">>} ->
-        fun(Item) -> Item * Item end;
-      {<<"+">>, <<"old">>} ->
-        fun(Item) -> Item + Item end;
-      {<<"*">>, _} ->
-        Value = binary_to_integer(ValueB),
-        fun(Item) -> Item * Value end;
-      {<<"+">>, _} ->
-        Value = binary_to_integer(ValueB),
-        fun(Item) -> Item + Value end
-    end,
-  parse(T, {Monkey#monkey{operation = Fun}, State});
+  parse(T, {Monkey#monkey{operation = {OperandB, ValueB}}, State});
 parse([<<"  Test: divisible by ", Value/binary>> | T], {Monkey, State}) ->
   parse(T, {Monkey#monkey{test = binary_to_integer(Value)}, State});
 parse([<<"    If true: throw to monkey ", ToMonkey/binary>> | T], {Monkey, State}) ->
@@ -56,11 +43,14 @@ parse([<<"    If false: throw to monkey ", ToMonkey/binary>> | T], {Monkey, Stat
   parse(T, {Monkey#monkey{when_fail = binary_to_integer(ToMonkey)}, State}).
 
 part1(State) ->
-  play(20, fun(Item) -> Item div 3 end, State).
+  Monkeys = inject_operation_fun(State#state.monkeys, undefined),
+  play(20, Monkeys, State).
 
 part2(State) ->
-  LCM = lcm(State#state.monkeys),
-  play(10000, fun(Item) -> Item rem LCM end, State).
+  Monkeys0 = State#state.monkeys,
+  LCM = lcm(Monkeys0),
+  Monkeys = inject_operation_fun(Monkeys0, LCM),
+  play(10000, Monkeys, State).
 
 lcm(Monkeys) ->
   lcm(Monkeys, 1).
@@ -82,19 +72,19 @@ play(0, _, State) ->
       lists:sort(
         maps:values(State#state.inspected_items))),
   Active1 * Active2;
-play(RoundsLeft, F, State) ->
+play(RoundsLeft, Monkeys, State) ->
   NewState =
     lists:foldl(fun(#monkey{num = Num} = Monkey, #state{items = Items} = S) ->
                    case Items of
                      #{Num := []} ->
                        S;
                      #{Num := MonkeyItems} ->
-                       inspect_items(Monkey, MonkeyItems, F, S)
+                       inspect_items(Monkey, MonkeyItems, S)
                    end
                 end,
                 State,
-                State#state.monkeys),
-  play(RoundsLeft - 1, F, NewState).
+                Monkeys),
+  play(RoundsLeft - 1, Monkeys, NewState).
 
 inspect_items(#monkey{num = Num,
                       operation = Fun,
@@ -102,12 +92,11 @@ inspect_items(#monkey{num = Num,
                       when_pass = TestPass,
                       when_fail = TestFail},
               MonkeyItems,
-              F,
               #state{items = Items, inspected_items = InspectedItems} = State) ->
   #{TestPass := TestPassItems, TestFail := TestFailItems} = Items,
   {Pass, Fail} =
     lists:foldl(fun(Item, {MonkeyPass, MonkeyFail}) ->
-                   WorryLevel = F(Fun(Item)),
+                   WorryLevel = Fun(Item),
                    case WorryLevel rem Test of
                      0 ->
                        {[WorryLevel | MonkeyPass], MonkeyFail};
@@ -122,3 +111,39 @@ inspect_items(#monkey{num = Num,
                              TestPass := Pass,
                              TestFail := Fail},
               inspected_items = InspectedItems#{Num := CurrentN + length(MonkeyItems)}}.
+
+inject_operation_fun(Monkeys, MaybeLCM) ->
+  inject_operation_fun(Monkeys, MaybeLCM, []).
+
+inject_operation_fun([], _, Monkeys) ->
+  lists:reverse(Monkeys);
+inject_operation_fun([#monkey{operation = {OperandB, ValueB}} = M | Others], MaybeLCM, Monkeys) ->
+  NewMonkey = M#monkey{operation = operation_fun(OperandB, ValueB, MaybeLCM)},
+  inject_operation_fun(Others, MaybeLCM, [NewMonkey | Monkeys]).
+
+operation_fun(OperandB, ValueB, undefined) ->
+  case {OperandB, ValueB} of
+    {<<"*">>, <<"old">>} ->
+      fun(Item) -> (Item * Item) div 3 end;
+    {<<"+">>, <<"old">>} ->
+      fun(Item) -> (Item + Item) div 3 end;
+    {<<"*">>, _} ->
+      Value = binary_to_integer(ValueB),
+      fun(Item) -> (Item * Value) div 3 end;
+    {<<"+">>, _} ->
+      Value = binary_to_integer(ValueB),
+      fun(Item) -> (Item + Value) div 3 end
+  end;
+operation_fun(OperandB, ValueB, LCM) ->
+  case {OperandB, ValueB} of
+    {<<"*">>, <<"old">>} ->
+      fun(Item) -> (Item * Item) rem LCM end;
+    {<<"+">>, <<"old">>} ->
+      fun(Item) -> (Item + Item) rem LCM end;
+    {<<"*">>, _} ->
+      Value = binary_to_integer(ValueB),
+      fun(Item) -> (Item * Value) rem LCM end;
+    {<<"+">>, _} ->
+      Value = binary_to_integer(ValueB),
+      fun(Item) -> (Item + Value) rem LCM end
+  end.
