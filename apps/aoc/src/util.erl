@@ -19,9 +19,17 @@ time_avg(Fun, N, Configs, ConfigFun) ->
 
 -spec do_time_avg(fun(() -> any()), non_neg_integer()) -> ok.
 do_time_avg(Fun, X) ->
-  AvgTimeMicro = lists:sum(
-                    lists:map(fun(_) ->
-                                  {Avg, _} = timer:tc(fun() -> Fun() end),
-                                  Avg
-                              end, lists:seq(1, X))) / X,
-  io:format("Time: ~p us ~.5f ms ~n", [AvgTimeMicro, AvgTimeMicro / 1000]).
+  TimesMicro =
+    lists:map(fun(_) ->
+                 {Avg, _} = timer:tc(fun() -> Fun() end),
+                 Avg
+              end,
+              lists:seq(1, X)),
+  Median = aoc_helpers:median(TimesMicro),
+  Max = lists:max(TimesMicro),
+  Min = lists:min(TimesMicro),
+  io:format("Num loops: ~p~n", [X]),
+  io:format("Time Min: ~p us ~.5f ms ~n", [Min, Min / 1000]),
+  io:format("Time Max: ~p us ~.5f ms ~n", [Max, Max / 1000]),
+  io:format("Time Median: ~p us ~.5f ms ~n", [Median, Median / 1000]).
+
