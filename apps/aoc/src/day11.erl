@@ -9,9 +9,7 @@
 solve() ->
   Input = aoc:read_file("day11.txt", <<"\n">>),
   State = parse(Input, {#monkey{num = 0}, #state{}}),
-  Part1 = part1(State),
-  Part2 = part2(State),
-  {Part1, Part2}.
+  {part1(State), part2(State)}.
 
 part1(State) ->
   play(20, fun(Item) -> Item div 3 end, State).
