@@ -26,4 +26,6 @@ day08:solve().          1          _        WIP
 day09:solve().          1        105    9524 us
 day10:solve().          1          _       TODO
 day11:solve().          1         19   52632 us
+day12:solve().          1          _       TODO
+day13:solve().          1        214    4673 us
 ```
